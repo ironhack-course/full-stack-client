@@ -1,12 +1,13 @@
 import React from "react";
 
 import { Redirect } from "react-router-dom";
-import { AuthContext } from "../../../context/index";
+import { AuthContext } from "../../../context/AuthContext";
 
 function Signup() {
   return (
     <AuthContext.Consumer>
       {(context) => {
+        console.log(context.state);
         const {
           formSignup: { username, email, password },
           message,

@@ -2,7 +2,7 @@ import React from "react";
 
 import { NavLink } from "react-router-dom";
 
-import { AuthContext } from "../../context/index";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Navbar() {
   return (

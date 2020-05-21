@@ -1,27 +1,23 @@
-import React from "react";
-import { AuthContext } from "../../context/index";
+import React, { useContext, useEffect } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
-export default class Private extends React.Component {
-  componentDidMount() {
-    // console.log('--------------> ', this.context.state.currentUser);
-
-    if (!this.context.state.isLoggedIn) {
-      return this.props.history.push("/signup-page");
+export default function Private(props) {
+  const context = useContext(AuthContext);
+  useEffect(() => {
+    if (!context.state.isLoggedIn) {
+      return props.history.push("/signup-page");
     }
-  }
-  render() {
-    // console.log('++++++++++++++++> ', this.context.state.currentUser);
+    // console.log('++++++++++++++++> ',context.state.currentUser);
+  }, []);
 
-    const { username } = this.context.state.currentUser;
-    return (
-      <>
-        <h3>A very private page!</h3>
-        <h2>User in the session is: {username}</h2>
-      </>
-    );
-  }
+  const { username } = context.state.currentUser;
+  return (
+    <>
+      <h3>A very private page!</h3>
+      <h2>User in the session is: {username}</h2>
+    </>
+  );
 }
-
 Private.contextType = AuthContext;
 
 // https://reactjs.org/docs/context.html#classcontexttype

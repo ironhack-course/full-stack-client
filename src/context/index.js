@@ -1,127 +1,110 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import { withRouter } from "react-router-dom";
+import AUTH_SERVICE from "../services/AuthService";
 
-import { withRouter } from 'react-router-dom';
+import { AuthContext } from "./AuthContext";
 
-import AUTH_SERVICE from '../services/AuthService';
-
-export const AuthContext = React.createContext();
-
-class AuthProvider extends React.Component {
-  state = {
+const AuthProvider = (props) => {
+  const [state, setState] = useState({
     formSignup: {
-      username: '',
-      email: '',
-      password: ''
+      username: "",
+      email: "",
+      password: "",
     },
     formLogin: {
-      email: '',
-      password: ''
+      email: "",
+      password: "",
     },
     currentUser: {},
     isLoggedIn: false,
-    message: null
-  };
+    message: null,
+  });
 
-  componentDidMount() {
+  useEffect(() => {
     AUTH_SERVICE.getUser()
-      .then(responseFromServer => {
-        // console.log('res: ', responseFromServer);
-
+      .then((responseFromServer) => {
         const { user } = responseFromServer.data;
 
-        this.setState(prevState => ({
-          ...prevState,
+        setState({
+          ...user,
           currentUser: user,
-          isLoggedIn: true
-        }));
+          isLoggedIn: true,
+        });
       })
-      .catch(err =>
-        console.log('Error while getting the user: ', err.response.data)
+      .catch((err) =>
+        console.log("Error while getting the user: ", err.response?.data)
       );
-  }
+  }, []);
 
-  handleSignupInput = e => {
+  const handleSignupInput = (e) => {
     const {
-      target: { name, value }
+      target: { name, value },
     } = e;
-
-    console.log(name, value);
-    this.setState(prevState => ({
-      ...prevState,
+    setState({
+      ...state,
       formSignup: {
-        ...prevState.formSignup,
-        [name]: value
-      }
-    }));
+        ...state.formSignup,
+        [name]: value,
+      },
+    });
   };
 
-  handleSignupSubmit = e => {
+  const handleSignupSubmit = (e) => {
     e.preventDefault();
-    // console.log(this.state.formSignup);
-
-    // AUTH_SERVICE.signup({ username, email, password })
-    // the same as above        ^^^^^^
-    AUTH_SERVICE.signup(this.state.formSignup)
-      .then(responseFromServer => {
-        // console.log('res from server: ', responseFromServer);
+    AUTH_SERVICE.signup(state.formSignup)
+      .then((responseFromServer) => {
         const {
-          data: { user, message }
+          data: { user, message },
         } = responseFromServer;
 
-        this.setState(prevState => ({
-          ...prevState,
+        setState({
+          ...state,
           formSignup: {
-            username: '',
-            email: '',
-            password: ''
+            username: "",
+            email: "",
+            password: "",
           },
           currentUser: user,
-          isLoggedIn: true
-        }));
+          isLoggedIn: true,
+        });
         alert(`${message}`);
-        this.props.history.push('/home');
+        props.history.push("/home");
       })
-      .catch(err => {
-        // console.log(err.response);
-        if (err.response && err.response.data) {
-          this.setState(prevState => ({
-            ...prevState,
-            message: err.response.data.message
-          }));
+      .catch((err) => {
+        if (err.response?.data) {
+          setState({
+            ...state,
+            message: err.response.data.message,
+          });
         }
       });
   };
 
-  handleLogout = () => {
+  const handleLogout = () => {
     AUTH_SERVICE.logout()
       .then(() => {
-        this.setState(prevState => ({
-          ...prevState,
+        setState({
+          ...state,
           currentUser: {},
-          isLoggedIn: false
-        }));
-        this.props.history.push('/');
+          isLoggedIn: false,
+        });
+        props.history.push("/");
       })
-      .catch(err => alert('Error while logout: ', err));
+      .catch((err) => alert("Error while logout: ", err));
   };
 
-  render() {
-    const { state, handleSignupInput, handleSignupSubmit, handleLogout } = this;
-    return (
-      <>
-        <AuthContext.Provider
-          value={{
-            state,
-            handleSignupInput,
-            handleSignupSubmit,
-            handleLogout
-          }}
-        >
-          {this.props.children}
-        </AuthContext.Provider>
-      </>
-    );
-  }
-}
+  return (
+    <AuthContext.Provider
+      value={{
+        state,
+        handleSignupInput,
+        handleSignupSubmit,
+        handleLogout,
+      }}
+    >
+      {props.children}
+    </AuthContext.Provider>
+  );
+};
 
 export default withRouter(AuthProvider);
