@@ -5,8 +5,7 @@
 To clone this app follow these steps:
 
 ```shell
-$ svn export https://github.com/Ironhack-Miami-PTWD-October-2019/module-3/branches/master/full-stack-client
-$ cd full-stack-client
+$ git clone https://github.com/Cule219/full-stack-client && cd full-stack-client
 $ npm i
 $ npm start
 ```
